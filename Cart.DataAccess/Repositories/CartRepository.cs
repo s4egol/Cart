@@ -14,6 +14,22 @@ namespace Cart.DataAccess.Repositories
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public CartDal GetSingle() => _dbContext.Carts.FirstOrDefault()?.ToDal();
+        public void Create(string id)
+            => _dbContext.Carts.Add(new NoSql.Models.Cart { Id = id });
+
+        public IEnumerable<CartDal>? GetAll()
+            => _dbContext.Carts
+                .AsEnumerable()
+                .Select(cart => cart.ToDal());
+
+        public CartDal? GetById(string id)
+            => _dbContext.Carts
+                .Where(cart => cart.Id == id)
+                .FirstOrDefault()?.ToDal();
+
+        public bool IsExists(string id)
+            => _dbContext.Carts
+                .Where(cart => cart.Id == id)
+                .Any();
     }
 }

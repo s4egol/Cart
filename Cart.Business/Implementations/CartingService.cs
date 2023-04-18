@@ -2,10 +2,11 @@
 using Cart.Business.Mappers;
 using Cart.Business.Models;
 using Cart.DataAccess.Interfaces;
+using Cart.DataAccess.Models;
 
 namespace Cart.Business.Implementations
 {
-    public class CartingService : ICartingService
+    public sealed class CartingService : ICartingService
     {
         private readonly IProductItemRepository _productItemRepository;
         private readonly ICartRepository _cartRepository;
@@ -17,14 +18,22 @@ namespace Cart.Business.Implementations
             _cartRepository = cartRepository ?? throw new ArgumentNullException(nameof(cartRepository));
         }
 
-        public void AddItem(ProductItemEntity item)
+        public void AddItem(string cartId, ProductItemEntity item)
         {
-            if (item == null)
+            ArgumentNullException.ThrowIfNull(item, nameof(item));
+                
+            if (!_cartRepository.IsExists(cartId))
             {
-                throw new ArgumentNullException(nameof(item));
+                _cartRepository.Create(cartId);
             }
 
-            var cart = _cartRepository.GetSingle();
+            CartDal? cart = _cartRepository.GetById(cartId);
+
+            if (cart == null)
+            {
+                throw new Exception();
+            }
+
             var dbProductItem = item.ToDal();
 
             dbProductItem.CartId = cart.Id;
@@ -32,12 +41,22 @@ namespace Cart.Business.Implementations
             _productItemRepository.Add(dbProductItem);
         }
 
-        public void DeleteItem(int itemId)
-            => _productItemRepository.Delete(itemId);
+        public void DeleteItem(string cartId, int itemId)
+            => _productItemRepository.Delete(cartId, itemId);
 
-        public IEnumerable<ProductItemEntity> GetItems()
+        public IEnumerable<CartEntity>? GetAll()
+            => _cartRepository.GetAll()?
+                .Select(cart => cart.ToBusiness());
+
+        public IEnumerable<ProductItemEntity> GetItems(string cartId)
         {
-            var cart = _cartRepository.GetSingle();
+            var cart = _cartRepository.GetById(cartId);
+
+            if (cart == null)
+            {
+                throw new Exception();
+            }
+
             var productItems = _productItemRepository.GetProductItems(cart.Id)
                 .Select(productItem => productItem.ToBusiness());
 

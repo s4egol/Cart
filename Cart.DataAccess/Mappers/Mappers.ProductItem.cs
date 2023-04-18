@@ -8,7 +8,7 @@ namespace Cart.DataAccess.Mappers
         public static ProductItem ToDbState(this ProductItemDal productItem)
             => new()
             {
-                Id = productItem.Id,
+                ExternalId = productItem.Id,
                 Name = productItem.Name,
                 Image = productItem.Image,
                 Price = productItem.Price,
@@ -19,7 +19,7 @@ namespace Cart.DataAccess.Mappers
         public static ProductItemDal ToDal(this ProductItem productItem)
             => new()
             {
-                Id = productItem.Id,
+                Id = productItem.ExternalId,
                 Name = productItem.Name,
                 Image = productItem.Image,
                 Price = productItem.Price,

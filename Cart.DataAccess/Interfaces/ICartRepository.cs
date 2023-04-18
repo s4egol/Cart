@@ -4,6 +4,9 @@ namespace Cart.DataAccess.Interfaces
 {
     public interface ICartRepository
     {
-        CartDal GetSingle();
+        IEnumerable<CartDal>? GetAll();
+        CartDal? GetById(string id);
+        bool IsExists(string id);
+        void Create(string id);
     }
 }

@@ -16,20 +16,18 @@ namespace Cart.DataAccess.Repositories
 
         public void Add(ProductItemDal productItem)
         {
-            if (productItem == null)
-            {
-                throw new ArgumentNullException(nameof(productItem));
-            }
+            ArgumentNullException.ThrowIfNull(productItem, nameof(productItem));
 
             _dbContext.ProductItems.Add(productItem.ToDbState());
         }
 
-        public void Delete(int productItemId)
-            => _dbContext.ProductItems.Delete(productItemId);
-
-        public IEnumerable<ProductItemDal> GetProductItems(int cartId)
+        public void Delete(string cartId, int productItemId)
             => _dbContext.ProductItems
-                .AsEnumerable()
+                .DeleteExpression(x => x.ExternalId == productItemId && x.CartId == cartId);
+
+        public IEnumerable<ProductItemDal> GetProductItems(string cartId)
+            => _dbContext.ProductItems
+                .Where(product => product.CartId == cartId)
                 .Select(productItem => productItem.ToDal());
     }
 }

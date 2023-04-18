@@ -14,18 +14,6 @@ namespace NoSql.Context
             Carts = new LiteDbSet<Cart>(InternalDatabase);
             Carts.ConfigureIndices(x => x.Id);
             ProductItems = new LiteDbSet<ProductItem>(InternalDatabase);
-
-            MigrateCart();
-        }
-
-        private void MigrateCart()
-        {
-            var uniqueCart = Carts.FirstOrDefault(cart => cart.Id == 1);
-
-            if (uniqueCart == null)
-            {
-                Carts.Add(new Cart { Id = 1 });
-            }
         }
     }
 }

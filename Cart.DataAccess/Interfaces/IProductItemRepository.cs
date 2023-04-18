@@ -4,8 +4,8 @@ namespace Cart.DataAccess.Interfaces
 {
     public interface IProductItemRepository
     {
-        IEnumerable<ProductItemDal> GetProductItems(int cartId);
+        IEnumerable<ProductItemDal> GetProductItems(string cartId);
         void Add(ProductItemDal productItem);
-        void Delete(int productItemId);
+        void Delete(string cartId, int productItemId);
     }
 }
