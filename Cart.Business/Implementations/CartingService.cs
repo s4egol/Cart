@@ -31,7 +31,7 @@ namespace Cart.Business.Implementations
 
             if (cart == null)
             {
-                throw new Exception();
+                throw new Exception($"Cart with ID: {cartId} wasn't found");
             }
 
             var dbProductItem = item.ToDal();
@@ -54,7 +54,7 @@ namespace Cart.Business.Implementations
 
             if (cart == null)
             {
-                throw new Exception();
+                throw new Exception($"Cart with ID: {cartId} wasn't found");
             }
 
             var productItems = _productItemRepository.GetProductItems(cart.Id)
