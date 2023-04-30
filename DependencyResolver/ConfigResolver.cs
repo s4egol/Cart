@@ -1,8 +1,8 @@
-﻿using Cart.Business.Implementations;
+﻿using Cart.Business.Configuration;
+using Cart.Business.Implementations;
 using Cart.Business.Interfaces;
 using Cart.DataAccess.Interfaces;
 using Cart.DataAccess.Repositories;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using NoSql.Context;
 
@@ -13,6 +13,7 @@ namespace DependencyResolver
         public static IServiceCollection ConfigureServices(this IServiceCollection services)
         {
             services.AddScoped<ICartingService, CartingService>();
+            services.AddHostedService<RabbitMqListener>();
 
             return services;
         }
@@ -29,6 +30,13 @@ namespace DependencyResolver
         {
             var dbContext = new CartContext(connectionString);
             services.AddSingleton(dbContext);
+
+            return services;
+        }
+
+        public static IServiceCollection ConfigureSettings(this IServiceCollection services)
+        {
+            services.AddScoped<AppSettings>();
 
             return services;
         }
