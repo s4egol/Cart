@@ -1,7 +1,8 @@
-﻿using Cart.Business.Interfaces;
-using Cart.Business.Mappers;
+﻿using AutoMapper;
+using Cart.Business.Interfaces;
 using Cart.Business.Models;
 using Cart.DataAccess.Interfaces;
+using NoSql.Models;
 
 namespace Cart.Business.Implementations
 {
@@ -9,12 +10,15 @@ namespace Cart.Business.Implementations
     {
         private readonly IProductItemRepository _productItemRepository;
         private readonly ICartRepository _cartRepository;
+        private readonly IMapper _mapper;
 
         public CartingService(IProductItemRepository productItemRepository,
-            ICartRepository cartRepository)
+            ICartRepository cartRepository,
+            IMapper mapper)
         {
             _productItemRepository = productItemRepository ?? throw new ArgumentNullException(nameof(productItemRepository));
             _cartRepository = cartRepository ?? throw new ArgumentNullException(nameof(cartRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public void AddItem(string cartId, ProductItemEntity item)
@@ -33,7 +37,7 @@ namespace Cart.Business.Implementations
                 throw new Exception($"Cart with ID: {cartId} wasn't found");
             }
 
-            var dbProductItem = item.ToDal();
+            var dbProductItem = _mapper.Map<ProductItem>(item);
 
             dbProductItem.CartId = cart.Id;
 
@@ -48,7 +52,7 @@ namespace Cart.Business.Implementations
         public IEnumerable<CartEntity>? GetAll()
         {
             var carts = _cartRepository.GetAll()?
-                .Select(cart => cart.ToBusiness());
+                .Select(_mapper.Map<CartEntity>);
 
             return carts;
         }
@@ -63,7 +67,7 @@ namespace Cart.Business.Implementations
             }
 
             var productItems = _productItemRepository.GetProductItems(cart.Id)
-                .Select(productItem => productItem.ToBusiness());
+                .Select(_mapper.Map<ProductItemEntity>);
 
             return productItems;
         }
