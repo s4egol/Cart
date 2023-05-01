@@ -1,13 +1,13 @@
-﻿using Cart.DataAccess.Models;
+﻿using NoSql.Models;
 
 namespace Cart.DataAccess.Interfaces
 {
     public interface IProductItemRepository
     {
-        IEnumerable<ProductItemDal> GetProductItems(string cartId);
-        IEnumerable<ProductItemDal> GetProductItems(IEnumerable<int> productIds);
-        void Add(ProductItemDal productItem);
-        void UpdateRange(IEnumerable<ProductItemDal> productItems);
+        IEnumerable<ProductItem> GetProductItems(string cartId);
+        IEnumerable<ProductItem> GetProductItems(IEnumerable<int> productIds);
+        void Add(ProductItem productItem);
+        void UpdateRange(IEnumerable<ProductItem> productItems);
         void Delete(string cartId, int productItemId);
     }
 }

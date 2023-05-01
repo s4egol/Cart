@@ -1,24 +1,24 @@
 ﻿using Cart.Business.Models;
-using Cart.DataAccess.Models;
+using NoSql.Models;
 
 namespace Cart.Business.Mappers
 {
     public static partial class Mappers
     {
-        public static ProductItemDal ToDal(this ProductItemEntity productItem)
+        public static ProductItem ToDal(this ProductItemEntity productItem)
             => new()
             {
-                Id = productItem.Id,
+                ExternalId = productItem.Id,
                 Name = productItem.Name,
                 Image = productItem.Image,
                 Price = productItem.Price,
                 Quantity = productItem.Quantity,
             };
 
-        public static ProductItemEntity ToBusiness(this ProductItemDal productItem)
+        public static ProductItemEntity ToBusiness(this ProductItem productItem)
             => new()
             {
-                Id = productItem.Id,
+                Id = productItem.ExternalId,
                 Name = productItem.Name,
                 Image = productItem.Image,
                 Price = productItem.Price,

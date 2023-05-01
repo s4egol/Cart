@@ -2,7 +2,6 @@
 using Cart.Business.Mappers;
 using Cart.Business.Models;
 using Cart.DataAccess.Interfaces;
-using Cart.DataAccess.Models;
 
 namespace Cart.Business.Implementations
 {
@@ -21,13 +20,13 @@ namespace Cart.Business.Implementations
         public void AddItem(string cartId, ProductItemEntity item)
         {
             ArgumentNullException.ThrowIfNull(item, nameof(item));
-                
+
             if (!_cartRepository.IsExists(cartId))
             {
                 _cartRepository.Create(cartId);
             }
 
-            CartDal? cart = _cartRepository.GetById(cartId);
+            NoSql.Models.Cart? cart = _cartRepository.GetById(cartId);
 
             if (cart == null)
             {
@@ -42,11 +41,17 @@ namespace Cart.Business.Implementations
         }
 
         public void DeleteItem(string cartId, int itemId)
-            => _productItemRepository.Delete(cartId, itemId);
+        {
+            _productItemRepository.Delete(cartId, itemId);
+        }
 
         public IEnumerable<CartEntity>? GetAll()
-            => _cartRepository.GetAll()?
+        {
+            var carts = _cartRepository.GetAll()?
                 .Select(cart => cart.ToBusiness());
+
+            return carts;
+        }
 
         public IEnumerable<ProductItemEntity> GetItems(string cartId)
         {
@@ -67,7 +72,7 @@ namespace Cart.Business.Implementations
         {
             var messageProductIds = messages.Select(message => message.Id);
             var productsById = _productItemRepository.GetProductItems(messageProductIds)
-                .GroupBy(product => product.Id)
+                .GroupBy(product => product.ExternalId)
                 .ToDictionary(product => product.Key, product => product.Single());
 
             foreach (var message in messages.Where(message => productsById.ContainsKey(message.Id)))
