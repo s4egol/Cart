@@ -1,5 +1,5 @@
-﻿using Cart.Business.Interfaces;
-using Cart.Mappers;
+﻿using AutoMapper;
+using Cart.Business.Interfaces;
 using Cart.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.Swagger.Annotations;
@@ -12,10 +12,12 @@ namespace Cart.Controllers.V2
     public class CartController : ControllerBase
     {
         private readonly ICartingService _cartingService;
+        private readonly IMapper _mapper;
 
-        public CartController(ICartingService cartingService)
+        public CartController(ICartingService cartingService, IMapper mapper)
         {
             _cartingService = cartingService ?? throw new ArgumentNullException(nameof(cartingService));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -38,7 +40,7 @@ namespace Cart.Controllers.V2
             try
             {
                 productItems = _cartingService.GetItems(cartId.ToString())
-                    .Select(productItem => productItem.ToView())
+                    .Select(_mapper.Map<ProductItemViewModel>)
                     .ToArray();
             }
             catch (Exception)

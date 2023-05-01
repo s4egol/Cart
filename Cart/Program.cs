@@ -34,6 +34,8 @@ builder.Services.AddSwaggerGen();
 // Swagger options
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 builder.Services.AddScoped<IConfigureNamedOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+//Add mappers
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
