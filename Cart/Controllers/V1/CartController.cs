@@ -19,6 +19,7 @@ namespace Cart.Controllers.V1
 
         [HttpPost]
         [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Add(string cartId, ProductItemViewModel productItem)
@@ -33,6 +34,7 @@ namespace Cart.Controllers.V1
 
         [HttpDelete]
         [MapToApiVersion("1.0")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Delete(string cartId, int productId)
