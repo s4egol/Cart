@@ -21,8 +21,10 @@ namespace Cart.DataAccess.Repositories
         }
 
         public void Delete(string cartId, int productItemId)
-            => _dbContext.ProductItems
+        {
+            _dbContext.ProductItems
                 .DeleteExpression(x => x.ExternalId == productItemId && x.CartId == cartId);
+        }
 
         public IEnumerable<ProductItem> GetProductItems(string cartId)
         {

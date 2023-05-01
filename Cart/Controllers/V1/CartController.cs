@@ -2,6 +2,7 @@
 using Cart.Mappers;
 using Cart.Models;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.Swagger.Annotations;
 
 namespace Cart.Controllers.V1
 {
@@ -22,12 +23,25 @@ namespace Cart.Controllers.V1
         [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status200OK, "Product in cart was added")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something went wrong")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad input")]
         public IActionResult Add(string cartId, ProductItemViewModel productItem)
         {
-            ArgumentNullException.ThrowIfNull(cartId, nameof(cartId));
-            ArgumentNullException.ThrowIfNull(productItem, nameof(productItem));
+            if (string.IsNullOrWhiteSpace(cartId) || productItem == null)
+            {
+                return BadRequest();
+            }
 
-            _cartingService.AddItem(cartId, productItem.ToBusiness());
+            try
+            {
+                _cartingService.AddItem(cartId, productItem.ToBusiness());
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
 
             return Ok();
         }
@@ -37,9 +51,16 @@ namespace Cart.Controllers.V1
         [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status200OK, "Product was deleted from cart")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something went wrong")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad input")]
         public IActionResult Delete(string cartId, int productId)
         {
-            ArgumentNullException.ThrowIfNull(cartId, nameof(cartId));
+            if (string.IsNullOrWhiteSpace(cartId) || productId <= 0)
+            {
+                return BadRequest();
+            }
 
             _cartingService.DeleteItem(cartId, productId);
 
@@ -50,12 +71,35 @@ namespace Cart.Controllers.V1
         [MapToApiVersion("1.0")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status200OK, "Products added in cart were loaded")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something went wrong")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad input")]
         public IActionResult GetCartItems(string cartId)
-            => Ok(new CartViewModel
+        {
+            if (string.IsNullOrWhiteSpace(cartId))
+            {
+                return BadRequest();
+            }
+
+            var productItems = Array.Empty<ProductItemViewModel>();
+
+            try
+            {
+                productItems = _cartingService.GetItems(cartId.ToString())
+                    .Select(productItem => productItem.ToView())
+                    .ToArray();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
+            return Ok(new CartViewModel
             {
                 CartId = cartId.ToString(),
-                ProductItems = _cartingService.GetItems(cartId.ToString())
-                    .Select(productItem => productItem.ToView())
+                ProductItems = productItems
             });
+        }
     }
 }
