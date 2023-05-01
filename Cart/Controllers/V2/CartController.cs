@@ -1,6 +1,8 @@
 ﻿using Cart.Business.Interfaces;
 using Cart.Mappers;
+using Cart.Models;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.Swagger.Annotations;
 
 namespace Cart.Controllers.V2
 {
@@ -16,14 +18,33 @@ namespace Cart.Controllers.V2
             _cartingService = cartingService ?? throw new ArgumentNullException(nameof(cartingService));
         }
 
-        [HttpGet(Name = "AAAA")]
+        [HttpGet]
         [MapToApiVersion("2.0")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [SwaggerResponse(StatusCodes.Status200OK, "Products added in cart were loaded")]
+        [SwaggerResponse(StatusCodes.Status500InternalServerError, "Something went wrong")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Bad input")]
         public IActionResult GetCartItems(string cartId)
         {
-            var productItems = _cartingService.GetItems(cartId.ToString())
-                .Select(productItem => productItem.ToView());
+            if (string.IsNullOrWhiteSpace(cartId))
+            {
+                return BadRequest();
+            }
+
+            var productItems = Array.Empty<ProductItemViewModel>();
+
+            try
+            {
+                productItems = _cartingService.GetItems(cartId.ToString())
+                    .Select(productItem => productItem.ToView())
+                    .ToArray();
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
 
             return Ok(productItems);
         }
