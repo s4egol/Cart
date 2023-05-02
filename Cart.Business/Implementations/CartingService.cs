@@ -71,5 +71,24 @@ namespace Cart.Business.Implementations
 
             return productItems;
         }
+
+        public void UpdateItems(IEnumerable<ProductMessage> messages)
+        {
+            var messageProductIds = messages.Select(message => message.Id);
+            var productsById = _productItemRepository.GetProductItems(messageProductIds)
+                .GroupBy(product => product.ExternalId)
+                .ToDictionary(product => product.Key, product => product.Single());
+
+            foreach (var message in messages.Where(message => productsById.ContainsKey(message.Id)))
+            {
+                var product = productsById[message.Id];
+
+                product.Name = message.Name;
+                product.Price = message.Price;
+                product.Quantity = message.Amount;
+            }
+
+            _productItemRepository.UpdateRange(productsById.Values);
+        }
     }
 }
