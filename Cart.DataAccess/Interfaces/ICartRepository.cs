@@ -1,9 +1,10 @@
-﻿using Cart.DataAccess.Models;
-
-namespace Cart.DataAccess.Interfaces
+﻿namespace Cart.DataAccess.Interfaces
 {
     public interface ICartRepository
     {
-        CartDal GetSingle();
+        IEnumerable<NoSql.Models.Cart>? GetAll();
+        NoSql.Models.Cart? GetById(string id);
+        bool IsExists(string id);
+        void Create(string id);
     }
 }

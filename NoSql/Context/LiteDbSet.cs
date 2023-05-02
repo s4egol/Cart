@@ -77,6 +77,23 @@ namespace NoSql.Context
         public bool Delete(BsonValue id) => _db.GetCollection<T>().Delete(id);
 
         /// <summary>
+        /// Delete entities
+        /// </summary>
+        /// <param name="expression">expression to delete concrete entities</param>
+        /// <returns></returns>
+        public int DeleteExpression(Expression<Func<T, bool>> expression)
+            => _db.GetCollection<T>()
+                .DeleteMany(expression);
+
+        /// <summary>
+        /// Delete all entities
+        /// </summary>
+        /// <returns></returns>
+        public int DeleteAll()
+            => _db.GetCollection<T>()
+                .DeleteAll();
+
+        /// <summary>
         /// return FirstOrDefault
         /// </summary>
         public T FirstOrDefault() => _db.GetCollection<T>().FindAll().FirstOrDefault();

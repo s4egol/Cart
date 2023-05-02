@@ -1,45 +1,73 @@
-﻿using Cart.Business.Interfaces;
-using Cart.Business.Mappers;
+﻿using AutoMapper;
+using Cart.Business.Interfaces;
 using Cart.Business.Models;
 using Cart.DataAccess.Interfaces;
+using NoSql.Models;
 
 namespace Cart.Business.Implementations
 {
-    public class CartingService : ICartingService
+    public sealed class CartingService : ICartingService
     {
         private readonly IProductItemRepository _productItemRepository;
         private readonly ICartRepository _cartRepository;
+        private readonly IMapper _mapper;
 
         public CartingService(IProductItemRepository productItemRepository,
-            ICartRepository cartRepository)
+            ICartRepository cartRepository,
+            IMapper mapper)
         {
             _productItemRepository = productItemRepository ?? throw new ArgumentNullException(nameof(productItemRepository));
             _cartRepository = cartRepository ?? throw new ArgumentNullException(nameof(cartRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        public void AddItem(ProductItemEntity item)
+        public void AddItem(string cartId, ProductItemEntity item)
         {
-            if (item == null)
+            ArgumentNullException.ThrowIfNull(item, nameof(item));
+
+            if (!_cartRepository.IsExists(cartId))
             {
-                throw new ArgumentNullException(nameof(item));
+                _cartRepository.Create(cartId);
             }
 
-            var cart = _cartRepository.GetSingle();
-            var dbProductItem = item.ToDal();
+            NoSql.Models.Cart? cart = _cartRepository.GetById(cartId);
+
+            if (cart == null)
+            {
+                throw new Exception($"Cart with ID: {cartId} wasn't found");
+            }
+
+            var dbProductItem = _mapper.Map<ProductItem>(item);
 
             dbProductItem.CartId = cart.Id;
 
             _productItemRepository.Add(dbProductItem);
         }
 
-        public void DeleteItem(int itemId)
-            => _productItemRepository.Delete(itemId);
-
-        public IEnumerable<ProductItemEntity> GetItems()
+        public void DeleteItem(string cartId, int itemId)
         {
-            var cart = _cartRepository.GetSingle();
+            _productItemRepository.Delete(cartId, itemId);
+        }
+
+        public IEnumerable<CartEntity>? GetAll()
+        {
+            var carts = _cartRepository.GetAll()?
+                .Select(_mapper.Map<CartEntity>);
+
+            return carts;
+        }
+
+        public IEnumerable<ProductItemEntity> GetItems(string cartId)
+        {
+            var cart = _cartRepository.GetById(cartId);
+
+            if (cart == null)
+            {
+                throw new Exception($"Cart with ID: {cartId} wasn't found");
+            }
+
             var productItems = _productItemRepository.GetProductItems(cart.Id)
-                .Select(productItem => productItem.ToBusiness());
+                .Select(_mapper.Map<ProductItemEntity>);
 
             return productItems;
         }

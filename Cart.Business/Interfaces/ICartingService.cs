@@ -4,8 +4,9 @@ namespace Cart.Business.Interfaces
 {
     public interface ICartingService
     {
-        IEnumerable<ProductItemEntity> GetItems();
-        void AddItem(ProductItemEntity item);
-        void DeleteItem(int itemId);
+        IEnumerable<CartEntity>? GetAll();
+        IEnumerable<ProductItemEntity> GetItems(string cartId);
+        void AddItem(string cartId, ProductItemEntity item);
+        void DeleteItem(string cartId, int itemId);
     }
 }

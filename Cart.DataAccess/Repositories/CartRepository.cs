@@ -1,6 +1,4 @@
 ﻿using Cart.DataAccess.Interfaces;
-using Cart.DataAccess.Mappers;
-using Cart.DataAccess.Models;
 using NoSql.Context;
 
 namespace Cart.DataAccess.Repositories
@@ -14,6 +12,32 @@ namespace Cart.DataAccess.Repositories
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public CartDal GetSingle() => _dbContext.Carts.FirstOrDefault()?.ToDal();
+        public void Create(string id)
+            => _dbContext.Carts.Add(new NoSql.Models.Cart { Id = id });
+
+        public IEnumerable<NoSql.Models.Cart>? GetAll()
+        {
+            var carts = _dbContext.Carts
+                .AsEnumerable();
+
+            return carts;
+        }
+
+        public NoSql.Models.Cart? GetById(string id)
+        {
+            var cart = _dbContext.Carts
+                .FirstOrDefault(cart => cart.Id == id);
+
+            return cart;
+        }
+
+        public bool IsExists(string id)
+        {
+            var isCartExists = _dbContext.Carts
+                .Where(cart => cart.Id == id)
+                .Any();
+
+            return isCartExists;
+        }
     }
 }
